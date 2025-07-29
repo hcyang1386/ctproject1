@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>[비버 챌린지] 생물 분류하기 문항</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 30px; }
+    h1, h2 { color: #2d4b7c; }
+    .box { border: 2px solid #2c4b7c; padding: 15px; margin-bottom: 20px; background-color: #f3f7ff; }
+    .biocard { width: 100%; max-width: 700px; border: 1px solid #ccc; margin-top: 10px; }
+    .button-row { margin-top: 20px; }
+    .timer-box { margin-top: 20px; }
+    select:disabled { background-color: #eee; color: #888; }
+    .ai-box { border: 2px solid #999; padding: 15px; background-color: #fff; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>타이틀: 생물 도감 완성하기</h1>
+  <h2>대상: 중1</h2>
+
+  <div class="box">
+    <h3>[문제 3]</h3>
+    <p>다음은 4종류의 가상 생물의 특징을 정리한 것이다. 생물 A~D가 5계 중 어떤 계에 속할 것으로 예측되는지 그 결과를 아래의 칸에 써보고, 당신의 예측 결과를 'app'에 있는 ai의 결과와 비교해보자.</p>
+    <img class="chart" src="chart.png" alt="차트" />
+  </div>
+
+  <div class="box">
+    <h3>나의 예측 결과</h3>
+    <label for="answerA">A:</label>
+    <select id="answerA" disabled>
+      <option value="">선택하세요</option>
+      <option value="원핵생물계">원핵생물계</option>
+      <option value="원생생물계">원생생물계</option>
+      <option value="식물계">식물계</option>
+      <option value="동물계">동물계</option>
+      <option value="균계">균계</option>
+    </select><br><br>
+
+    <label for="answerB">B:</label>
+    <select id="answerB" disabled>
+      <option value="">선택하세요</option>
+      <option value="원핵생물계">원핵생물계</option>
+      <option value="원생생물계">원생생물계</option>
+      <option value="식물계">식물계</option>
+      <option value="동물계">동물계</option>
+      <option value="균계">균계</option>
+    </select><br><br>
+
+    <label for="answerC">C:</label>
+    <select id="answerC" disabled>
+      <option value="">선택하세요</option>
+      <option value="원핵생물계">원핵생물계</option>
+      <option value="원생생물계">원생생물계</option>
+      <option value="식물계">식물계</option>
+      <option value="동물계">동물계</option>
+      <option value="균계">균계</option>
+    </select><br><br>
+
+    <label for="answerD">D:</label>
+    <select id="answerD" disabled>
+      <option value="">선택하세요</option>
+      <option value="원핵생물계">원핵생물계</option>
+      <option value="원생생물계">원생생물계</option>
+      <option value="식물계">식물계</option>
+      <option value="동물계">동물계</option>
+      <option value="균계">균계</option>
+    </select>
+
+    <div class="button-row">
+      <input type="button" value="제출하기" onclick="submitAnswers()" />
+      <input type="button" value="다시 시작" onclick="resetQuiz()" />
+    </div>
+  </div>
+
+  <div class="box ai-box">
+    <h3>AI의 예측 결과</h3>
+    <p>AI 예측 결과는 'app' 페이지의 classification 모델을 통해 확인할 수 있습니다. 해당 페이지의 왼쪽에서 확인해보세요.</p>
+  </div>
+
+  <div class="timer-box">
+    <label>시간 선택: </label>
+    <select id="time-select">
+      <option value="30">30초</option>
+      <option value="60">1분</option>
+      <option value="90">1분 30초</option>
+      <option value="120">2분</option>
+    </select>
+    <input type="button" value="문제 풀기 시작" onclick="startQuiz()" />
+    <div id="timer-display" style="margin-top: 10px; font-size: 18px;"></div>
+  </div>
+
+  <script>
+    let timer;
+    let remainingTime;
+
+    function startQuiz() {
+      clearInterval(timer);
+      resetQuiz();
+      enableComboBoxes();
+      const selectedTime = parseInt(document.getElementById("time-select").value);
+      remainingTime = selectedTime;
+      document.getElementById("timer-display").textContent = `남은 시간: ${remainingTime}초`;
+
+      timer = setInterval(() => {
+        remainingTime--;
+        document.getElementById("timer-display").textContent = `남은 시간: ${remainingTime}초`;
+        if (remainingTime <= 0) {
+          clearInterval(timer);
+          alert("시간이 종료되었습니다.");
+          disableComboBoxes();
+        }
+      }, 1000);
+    }
+
+    function enableComboBoxes() {
+      document.getElementById("answerA").disabled = false;
+      document.getElementById("answerB").disabled = false;
+      document.getElementById("answerC").disabled = false;
+      document.getElementById("answerD").disabled = false;
+    }
+
+    function disableComboBoxes() {
+      document.getElementById("answerA").disabled = true;
+      document.getElementById("answerB").disabled = true;
+      document.getElementById("answerC").disabled = true;
+      document.getElementById("answerD").disabled = true;
+    }
+
+    function submitAnswers() {
+      clearInterval(timer);
+      disableComboBoxes();
+    }
+
+    function resetQuiz() {
+      clearInterval(timer);
+      document.getElementById("timer-display").textContent = "";
+
+      const selects = ["answerA", "answerB", "answerC", "answerD"];
+      selects.forEach(id => {
+        const select = document.getElementById(id);
+        select.value = "";
+        select.disabled = true;
+      });
+    }
+  </script>
+</body>
+</html>

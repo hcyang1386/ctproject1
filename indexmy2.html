@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>[비버 챌린지] 생물 분류하기 문항</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 30px; }
+    h1, h2 { color: #2d4b7c; }
+    .box { border: 2px solid #2c4b7c; padding: 15px; margin-bottom: 20px; background-color: #f3f7ff; }
+    .biocard { width: 100%; max-width: 700px; border: 1px solid #ccc; margin-top: 10px; }
+    .dropzone {
+      border: 2px dashed #aaa; min-height: 40px;
+      padding: 10px; margin: 10px 0; background: #fff;
+      font-weight: bold;
+    }
+    .draggable {
+      padding: 6px 12px; margin: 5px; background: #d9eaff;
+      border: 1px solid #2c4b7c; display: inline-block;
+      cursor: not-allowed; opacity: 0.6;
+    }
+    .draggable.enabled {
+      cursor: grab; opacity: 1;
+    }
+    .draggable:active { cursor: grabbing; }
+    .dropzone-area { display: flex; flex-direction: column; gap: 8px; }
+    .dropzone-label { margin-bottom: 5px; font-weight: bold; }
+    .result { font-weight: bold; margin-top: 10px; color: green; }
+    .button-row { margin-top: 20px; }
+    .timer-box { margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>타이틀: 생물 도감 완성하기</h1>
+  <h2>대상: 중1</h2>
+
+  <div class="box">
+    <h3>지문</h3>
+    <p>비버네 반 학생들은 수행평가로 생물 도감의 자료를 정리하고 있다. 이 수행평가에서 비버는 고사리, 미역, 메뚜기, 푸른곰팡이, 젖산균, 파리지옥, 도롱뇽, 산호를 5계에 맞게 정확하게 분류하여 이 내용을 생물 도감에 기록해야 한다.</p>
+  </div>
+
+  <div class="box">
+    <h3>[문제 2]</h3>
+    <p>다음은 선생님이 비버에게 제공한 8종류 생물의 이름, 사진, 설명이 담겨 있는 생물 카드이다.</p>
+    <img class="biocard" src="biocard.png" alt="생물 카드">
+    <p style="margin-top: 16px;">카드의 설명과 [문제 1]에서 완성한 알고리즘 흐름도를 활용하여 8종류의 생물을 5계에 알맞게 분류하시오.</p>
+  </div>
+
+  <div class="box">
+    <h3>보기</h3>
+    <div id="choices">
+      <div class="draggable" draggable="false" id="item1">고사리</div>
+      <div class="draggable" draggable="false" id="item2">미역</div>
+      <div class="draggable" draggable="false" id="item3">메뚜기</div>
+      <div class="draggable" draggable="false" id="item4">푸른곰팡이</div>
+      <div class="draggable" draggable="false" id="item5">젖산균</div>
+      <div class="draggable" draggable="false" id="item6">파리지옥</div>
+      <div class="draggable" draggable="false" id="item7">도롱뇽</div>
+      <div class="draggable" draggable="false" id="item8">산호</div>
+    </div>
+  </div>
+
+  <div class="box">
+    <h3>분류 결과</h3>
+    <div class="dropzone-area">
+      <div class="dropzone-label">원핵생물계</div>
+      <div class="dropzone" id="zone-원핵생물계" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+      <div class="dropzone-label">원생생물계</div>
+      <div class="dropzone" id="zone-원생생물계" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+      <div class="dropzone-label">균계</div>
+      <div class="dropzone" id="zone-균계" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+      <div class="dropzone-label">동물계</div>
+      <div class="dropzone" id="zone-동물계" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+      <div class="dropzone-label">식물계</div>
+      <div class="dropzone" id="zone-식물계" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+    </div>
+    <div class="button-row">
+      <input type="button" value="제출하기" onclick="checkAnswers()" />
+      <input type="button" value="다시 시작" onclick="resetQuiz()" />
+    </div>
+    <div id="result" class="result"></div>
+  </div>
+
+  <div class="timer-box">
+    <label>시간 선택: </label>
+    <select id="time-select">
+      <option value="30">30초</option>
+      <option value="60">1분</option>
+      <option value="90">1분 30초</option>
+      <option value="120">2분</option>
+    </select>
+    <input type="button" value="문제 풀기 시작" onclick="startQuiz()" />
+    <div id="timer-display" style="margin-top: 10px; font-size: 18px;"></div>
+  </div>
+
+  <script>
+    let timer;
+    let remainingTime;
+
+    function allowDrop(ev) {
+      ev.preventDefault();
+    }
+
+    function drag(ev) {
+      ev.dataTransfer.setData("text", ev.target.id);
+    }
+
+    function drop(ev) {
+      ev.preventDefault();
+      const data = ev.dataTransfer.getData("text");
+      const dragged = document.getElementById(data);
+      ev.target.appendChild(dragged);
+    }
+
+    function enableDragging() {
+      document.querySelectorAll('.draggable').forEach(elem => {
+        elem.setAttribute('draggable', 'true');
+        elem.classList.add('enabled');
+        elem.addEventListener('dragstart', drag);
+      });
+    }
+
+    function disableDragging() {
+      document.querySelectorAll('.draggable').forEach(elem => {
+        elem.setAttribute('draggable', 'false');
+        elem.classList.remove('enabled');
+      });
+    }
+
+    function startQuiz() {
+      clearInterval(timer);
+      resetQuiz();
+      enableDragging();
+      const selectedTime = parseInt(document.getElementById("time-select").value);
+      remainingTime = selectedTime;
+      document.getElementById("timer-display").textContent = `남은 시간: ${remainingTime}초`;
+
+      timer = setInterval(() => {
+        remainingTime--;
+        document.getElementById("timer-display").textContent = `남은 시간: ${remainingTime}초`;
+        if (remainingTime <= 0) {
+          clearInterval(timer);
+          alert("시간이 종료되었습니다.");
+          disableDragging();
+        }
+      }, 1000);
+    }
+
+    function resetQuiz() {
+      clearInterval(timer);
+      document.getElementById("timer-display").textContent = "";
+      document.getElementById("result").textContent = "";
+      disableDragging();
+
+      const zones = document.querySelectorAll('.dropzone');
+      zones.forEach(zone => zone.innerHTML = "");
+
+      const choicesHTML = [
+        "고사리", "미역", "메뚜기", "푸른곰팡이",
+        "젖산균", "파리지옥", "도롱뇽", "산호"
+      ].map((text, idx) => `<div class='draggable' draggable='false' id='item${idx+1}'>${text}</div>`).join("");
+
+      document.getElementById("choices").innerHTML = choicesHTML;
+    }
+
+    function checkAnswers() {
+      clearInterval(timer);
+      disableDragging();
+
+      const correct = {
+        "zone-원핵생물계": ["젖산균"],
+        "zone-원생생물계": ["미역"],
+        "zone-균계": ["푸른곰팡이"],
+        "zone-동물계": ["메뚜기", "도롱뇽", "산호"],
+        "zone-식물계": ["고사리", "파리지옥"]
+      };
+
+      let score = 0;
+      for (let zoneId in correct) {
+        const zone = document.getElementById(zoneId);
+        const children = Array.from(zone.children).map(child => child.textContent);
+        const correctItems = correct[zoneId];
+        if (correctItems.every(item => children.includes(item)) && children.length === correctItems.length) {
+          score++;
+        }
+      }
+      document.getElementById("result").textContent = `정답 영역 수: ${score} / 5`;
+    }
+  </script>
+</body>
+</html>

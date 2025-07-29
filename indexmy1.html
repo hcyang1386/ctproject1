@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>[비버 챌린지] 생물 분류하기 문항 </title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 30px; }
+    h1, h2 { color: #2d4b7c; }
+    .box { border: 2px solid #2c4b7c; padding: 15px; margin-bottom: 20px; background-color: #f3f7ff; }
+    .timer-box { margin-top: 20px; }
+    .dropzone {
+      border: 2px dashed #aaa; padding: 20px; margin: 10px 0;
+      background: #fff; min-height: 60px; text-align: center;
+      font-weight: bold; font-size: 16px;
+    }
+    .draggable {
+      padding: 8px; margin: 5px; background: #d9eaff;
+      border: 1px solid #2c4b7c; cursor: not-allowed; opacity: 0.6;
+    }
+    .draggable.enabled {
+      cursor: grab; opacity: 1;
+    }
+    .draggable:active { cursor: grabbing; }
+    .result { font-weight: bold; color: green; margin-top: 15px; }
+    .flowchart {
+      width: 100%; max-width: 700px; margin-top: 10px;
+      border: 1px solid #ccc;
+    }
+    .button-row { margin-top: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    table, th, td { border: 1px solid #666; }
+    th, td { padding: 8px; text-align: left; }
+  </style>
+</head>
+<body>
+  <h1>타이틀: 생물 도감 완성하기</h1>
+  <h2>대상: 중1</h2>
+  <div class="box">
+    <h3>지문</h3>
+    <p>비버네 반 학생들은 수행평가로 생물 도감의 자료를 정리하고 있다. 이 수행평가에서 비버는 고사리, 미역, 메뚜기, 푸른곰팡이, 젖산균, 파리지옥, 도롱뇽, 산호를 5계에 맞게 정확하게 분류하여 이 내용을 생물 도감에 기록해야 한다.</p>
+  </div>
+
+  <div class="box">
+    <h3>[문제 1]</h3>
+    <p>다음 표는 선생님이 비버에게 제공한 5계의 명칭과 특징을 정리한 표이다.</p>
+
+    <table>
+      <thead><tr><th>명칭</th><th>특징</th></tr></thead>
+      <tbody>
+        <tr><td>원핵생물계</td><td>세포에 핵이 없음.</td></tr>
+        <tr><td>균계</td><td>세포에 핵이 있고, 다세포 생물임. 죽은 생명체를 분해해 영양분 얻으며 운동성이 없음</td></tr>
+        <tr><td>식물계</td><td>세포에 핵이 있고, 다세포 생물임. 엽록체가 있어서 광합성을 통해 영양분 얻음</td></tr>
+        <tr><td>동물계</td><td>세포에 핵이 있고, 다세포 생물임. 다른 생물을 잡아먹어 영양분을 얻으며 자유롭게 움직일 수 있음.</td></tr>
+        <tr><td>원생생물계</td><td>세포에 핵이 있고, 단세포 생물이거나 다세포 생물이며, 광합성을 하는 생물인 경우 뿌리, 줄기, 잎이 발달하지 않음</td></tr>
+      </tbody>
+    </table>
+
+    <p style="margin-top: 16px;">다음 보기에서 적절한 문장을 끌어다가 (가)~(라)에 올려놓으세요.</p>
+    <img class="flowchart" src="flowchart.png" alt="생물 분류 흐름도" />
+  </div>
+
+  <div class="box">
+    <h3>보기</h3>
+    <div id="choices">
+      <div class="draggable" draggable="false" id="choice1">운동성이 있는가?</div>
+      <div class="draggable" draggable="false" id="choice2">다세포 생물인가?</div>
+      <div class="draggable" draggable="false" id="choice3">광합성을 하는가?</div>
+      <div class="draggable" draggable="false" id="choice4">핵이 있는가?</div>
+    </div>
+    <br/>
+    <div>
+      (가): <div class="dropzone" id="drop-a" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+      (나): <div class="dropzone" id="drop-b" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+      (다): <div class="dropzone" id="drop-c" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+      (라): <div class="dropzone" id="drop-d" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+    </div>
+    <div class="button-row">
+      <input type="button" value="제출하기" onclick="checkDragAnswers()" />
+      <input type="button" value="다시 시작" onclick="resetQuiz()" />
+    </div>
+    <div id="result" class="result"></div>
+  </div>
+
+  <div class="timer-box">
+    <label>시간 선택: </label>
+    <select id="time-select">
+      <option value="30">30초</option>
+      <option value="60">1분</option>
+      <option value="90">1분 30초</option>
+      <option value="120">2분</option>
+    </select>
+    <input type="button" value="문제 풀기 시작" onclick="startQuiz()" />
+    <div id="timer-display" style="margin-top: 10px; font-size: 18px;"></div>
+  </div>
+
+  <script>
+    let timer;
+    let remainingTime;
+
+    function allowDrop(ev) {
+      ev.preventDefault();
+    }
+
+    function drag(ev) {
+      ev.dataTransfer.setData("text", ev.target.id);
+    }
+
+    function drop(ev) {
+      ev.preventDefault();
+      const data = ev.dataTransfer.getData("text");
+      const dragged = document.getElementById(data);
+      if (ev.target.classList.contains("dropzone")) {
+        ev.target.innerHTML = "";
+        ev.target.appendChild(dragged);
+      }
+    }
+
+    function enableDragging() {
+      const draggables = document.querySelectorAll('.draggable');
+      draggables.forEach(elem => {
+        elem.setAttribute('draggable', 'true');
+        elem.classList.add('enabled');
+        elem.addEventListener('dragstart', drag);
+      });
+    }
+
+    function disableDragging() {
+      const draggables = document.querySelectorAll('.draggable');
+      draggables.forEach(elem => {
+        elem.setAttribute('draggable', 'false');
+        elem.classList.remove('enabled');
+      });
+    }
+
+    function startQuiz() {
+      clearInterval(timer);
+      resetQuiz();
+      enableDragging();
+
+      const selectedTime = parseInt(document.getElementById("time-select").value);
+      remainingTime = selectedTime;
+      document.getElementById("timer-display").textContent = `남은 시간: ${remainingTime}초`;
+
+      timer = setInterval(() => {
+        remainingTime--;
+        document.getElementById("timer-display").textContent = `남은 시간: ${remainingTime}초`;
+        if (remainingTime <= 0) {
+          clearInterval(timer);
+          alert("시간이 종료되었습니다. 제출하지 못했습니다.");
+          disableDragging();
+        }
+      }, 1000);
+    }
+
+    function resetQuiz() {
+      clearInterval(timer);
+      disableDragging();
+      document.getElementById("timer-display").textContent = "";
+      document.getElementById("result").textContent = "";
+
+      const dropIds = ["drop-a", "drop-b", "drop-c", "drop-d"];
+      dropIds.forEach(id => {
+        document.getElementById(id).innerHTML = "";
+      });
+
+      const choices = document.getElementById("choices");
+      choices.innerHTML = `
+        <div class="draggable" draggable="false" id="choice1">운동성이 있는가?</div>
+        <div class="draggable" draggable="false" id="choice2">다세포 생물인가?</div>
+        <div class="draggable" draggable="false" id="choice3">광합성을 하는가?</div>
+        <div class="draggable" draggable="false" id="choice4">핵이 있는가?</div>
+      `;
+    }
+
+    function checkDragAnswers() {
+      clearInterval(timer);
+      disableDragging();
+
+      const correctAnswers = {
+        "drop-a": "핵이 있는가?",
+        "drop-b": "다세포 생물인가?",
+        "drop-c": "광합성을 하는가?",
+        "drop-d": "운동성이 있는가?"
+      };
+
+      let score = 0;
+      for (let key in correctAnswers) {
+        const zone = document.getElementById(key);
+        if (zone.firstChild && zone.firstChild.textContent === correctAnswers[key]) {
+          score++;
+        }
+      }
+
+      document.getElementById("result").textContent = `정답 개수: ${score} / 4`;
+    }
+  </script>
+</body>
+</html>
