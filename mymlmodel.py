@@ -14,7 +14,7 @@ def mymlApp():
     data.fillna(0, inplace=True)
 
     # Features and labels
-    X = data[["핵의 유무", "세포벽의 유무", "광합성 여부", "운동성 여부", "구성 세포수", "줄기 잎 뿌리 여부"]]
+    X = data[["핵의 유무", "광합성 여부", "운동성 여부", "구성 세포수", "줄기 잎 뿌리 여부"]]
     y = data["5계"]
 
     # Split data into training and testing sets
@@ -44,6 +44,6 @@ def mymlApp():
 
     # Example usage
     # Replace with user input for real-world use
-    example_features = [1, 1, 0, 1, 2, 1]  # Example feature set
+    example_features = [1, 0, 1, 2, 0]  # Example feature set
     predicted_class = predict_classification(example_features)
     print(f"The predicted class for the features {example_features} is: {predicted_class}")
