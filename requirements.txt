@@ -1,4 +1,18 @@
+# Streamlit 웹앱 필수
 streamlit
-scikit-learn
+
+# 데이터 처리
 pandas
 numpy
+
+# 머신러닝 (scikit-learn 기반 모델)
+scikit-learn
+
+# 엑셀 파일(.xlsx) 로딩용
+openpyxl
+
+# 시각화 필요시 (선택 사항, matplotlib 등)
+# matplotlib
+# seaborn
+
+# 기타 사용 중인 패키지 있다면 여기에 추가
