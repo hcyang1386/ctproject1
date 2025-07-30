@@ -1,5 +1,6 @@
 import streamlit as st
 import pickle
+from mymlmodel import mymlApp
 
 # 예시: 사용자 정의 모델 클래스 (반드시 포함!)
 class CustomClassifier:
@@ -7,8 +8,7 @@ class CustomClassifier:
         return ["동물계" for _ in X]  # 임시 예측
 
 # Load the trained model
-with open("classification.pkl", "rb") as file:
-    model = pickle.load(file)
+model = mymlApp()
 
 # Streamlit 설정
 st.set_page_config(page_title='5계 분류 예측', layout='wide')
