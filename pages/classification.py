@@ -7,7 +7,7 @@ class CustomClassifier:
         return ["동물계" for _ in X]  # 임시 예측
 
 # Load the trained model
-with open("./mymodel/classification.pkl", "rb") as file:
+with open("classification.pkl", "rb") as file:
     model = pickle.load(file)
 
 # Streamlit 설정
